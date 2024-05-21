@@ -1,0 +1,726 @@
+{
+	"info": {
+		"_postman_id": "90e07b8b-edf2-419e-894c-e61ebf85d214",
+		"name": "Restfull Booker Tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "4185548"
+	},
+	"item": [
+		{
+			"name": "Create Booking",
+			"item": [
+				{
+					"name": "Createabook",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const jsonData = pm.response.json();",
+									"// Verify status code text",
+									"pm.test(\"Test Status Code Text\", () => {",
+									"    pm.response.to.have.status(\"OK\")",
+									"});",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Response time is less than 200ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);",
+									"});",
+									"pm.test(\"Should have a valid JSON format response body\", function () {",
+									"    pm.expect(jsonData).to.not.be.undefined;",
+									"});",
+									"",
+									"pm.test(\"Should have the required 'account' object in the response\", function () {",
+									"    pm.expect(jsonData).to.be.an('object');",
+									"    pm.expect(jsonData.booking).to.exist;",
+									"});",
+									"",
+									"pm.test(\"Should have the `id` property in the account object and is a non-negative integer\", function () {",
+									"  pm.expect(jsonData.bookingid).to.be.a('number').and.to.be.at.least(0);",
+									"});",
+									"pm.test(\"Content-Type is present\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\");",
+									"});",
+									"pm.test(\"Test Status code is 200\", () => {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"let text = 'Your api is safe from SQL injection vulnerability'",
+									"",
+									"pm.test(\"checks response for WHERE clause sql injection\", function() {",
+									"    if(pm.response.text().toLowerCase().includes(\"error\")){",
+									"        text = \"Maybe your API is vulnerable to SQL injection vulnerability which allows the retrieval of hidden data\"",
+									"    }",
+									"   pm.expect(pm.response.text().toLowerCase()).to.not.include(\"error\")",
+									"}); ",
+									"pm.test(\"checks response for vulnerability allowing login bypass\", function() {",
+									"   console.log(jsonData.status)",
+									"    if(jsonData.status === 200){",
+									"      text = \"Maybe your API is vulnerable to SQL injection vulnerability which allows login bypass to access private data\";",
+									"    }",
+									"    pm.expect(jsonData.status).to.not.equal(200);",
+									"});",
+									"",
+									"pm.test(\"checks vulnerability with basic origin reflection\", function() {",
+									"    pm.expect(pm.response.headers.get(\"Access-Control-Allow-Origin\")).not.equal(pm.environment.get(\"malicious_origin\"))",
+									"    pm.expect(pm.response.headers.get(\"Access-Control-Allow-Credentials\")).to.be.oneOf([undefined,'false'])",
+									"});",
+									"",
+									"pm.test(\"checks vulnerability with trusted insecure protocols\", function() {",
+									"    pm.expect(pm.response.headers.get(\"Access-Control-Allow-Origin\")).not.equal(pm.variables.get(\"sub_domain_url\"))",
+									"    pm.expect(pm.response.headers.get(\"Access-Control-Allow-Credentials\")).to.be.oneOf([undefined,'false'])",
+									"});",
+									"",
+									"pm.test(\"checks vulnerability with trusted null origin\", function() {",
+									"    pm.expect(pm.response.headers.get(\"Access-Control-Allow-Origin\")).not.equal(\"null\")",
+									"    pm.expect(pm.response.headers.get(\"Access-Control-Allow-Credentials\")).to.be.oneOf([undefined,'false'])",
+									"});",
+									"// Test Cookies",
+									"pm.test(\"Test for Cookies\", () => {",
+									"    pm.expect(pm.cookies.has('string')).to.be.false",
+									"})",
+									"// Testing the body",
+									" ",
+									"pm.test(\"Test Data Type in the response\", () => {",
+									"    pm.expect(jsonData).to.be.an(\"object\");",
+									"    pm.expect(jsonData.booking.firstname).to.be.a(\"string\");",
+									"    pm.expect(jsonData.bookingid).to.be.a(\"number\");",
+									"    pm.expect(jsonData.booking.bookingdates).to.be.an(\"object\") ",
+									"})",
+									"",
+									" ",
+									"    pm.test(\"Check for Duplicate values in the object\", () => { ",
+									"        const valuesSoFar =  jsonData;",
+									"        for (var i = 0; i < valuesSoFar.length; i++) ",
+									"        {",
+									"            if (valuesSoFar.indexOf(valuesSoFar[i]) !== valuesSoFar.lastIndexOf(valuesSoFar[i])) { ",
+									"                return false; ",
+									"            } ",
+									"        } ",
+									"        return true; ",
+									"    })",
+									"",
+									"    pm.test(\"Check key pairs\", () => { ",
+									"",
+									"        // Iterate through the key pairs",
+									"        for (const [key, value] of Object.entries(jsonData)) {",
+									"            // Assert that the value is not equal to null",
+									"            pm.expect(value).not.to.equal(null);",
+									"            if (key === \"email\" || \"msisdn\") {",
+									"                // Assert that the value is not equal to null",
+									"                pm.expect(value).not.to.equal(null);",
+									"            }",
+									"        }",
+									"        ",
+									"    });",
+									"    ",
+									"// Test body fields",
+									"var fn = pm.variables.get(\"firstname\");",
+									"var ln = pm.variables.get(\"lastname\");",
+									"var checkin = pm.variables.get(\"checkin\")",
+									"",
+									"pm.test(\"Check first name in response body\"+ fn, function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.booking.firstname).to.eql(fn);",
+									"});",
+									"",
+									"pm.test(\"Check last name in response body\"+ ln, function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.booking.lastname).to.eql(ln);",
+									"});",
+									"",
+									"pm.test(\"Test Checkin Date value in Response Body\" + checkin, ()=> {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.booking.bookingdates.checkin).to.eql(checkin);",
+									"})",
+									"",
+									"// JSON Schema",
+									"var schema = {",
+									"  \"bookingid\": 1449,",
+									"  \"booking\": {",
+									"    \"firstname\": \"Taylor\",",
+									"    \"lastname\": \"Ken\",",
+									"    \"totalprice\": 157,",
+									"    \"depositpaid\": true,",
+									"    \"bookingdates\": {",
+									"      \"checkin\": \"2024-11-06\",",
+									"      \"checkout\": \"2024-06-03\"",
+									"    },",
+									"    \"additionalneeds\": \"lunch\"",
+									"  }",
+									"}",
+									"",
+									"// Test JSON schema",
+									"pm.test(\"Test JSON Schema\", () => {",
+									"    pm.expect(tv4.validate(jsonData, schema)).to.be.true",
+									"})",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstname\" : \"{{firstname}}\",\n    \"lastname\" : \"{{lastname}}\",\n    \"totalprice\" : {{totalprice}},\n    \"depositpaid\" : \"{{depositpaid}}\",\n    \"bookingdates\" : {\n        \"checkin\" : \"{{checkin}}\",\n        \"checkout\" : \"{{checkout}}\"\n    },\n    \"additionalneeds\" : \"{{additionalneeds}}\"\n\n    \n}\n"
+						},
+						"url": {
+							"raw": "{{rb_url}}/booking",
+							"host": [
+								"{{rb_url}}"
+							],
+							"path": [
+								"booking"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "basic",
+				"basic": [
+					{
+						"key": "password",
+						"value": "password123",
+						"type": "string"
+					},
+					{
+						"key": "username",
+						"value": "admin",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Get Bookings",
+			"item": [
+				{
+					"name": "GetAllbooks",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Get Status 200\", ()=> {",
+									"    pm.response.to.have.status(200)",
+									"});",
+									"",
+									"pm.test(\"Parse JSON Data\", ()=> { ",
+									"    const jsonData = pm.response.json()",
+									"    // console.log(jsonData)",
+									"});",
+									"",
+									"pm.test(\"Content-Type header is application json\", () => {",
+									"    pm.expect(pm.response.headers.get('Content-Type')).to.equal('application/json; charset=utf-8')",
+									"})",
+									"const jsonData = pm.response.json();",
+									" ",
+									"pm.test(\"Response time is less than 200ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);",
+									"});",
+									"pm.test(\"Should have a valid JSON format response body\", function () {",
+									"    pm.expect(jsonData).to.not.be.undefined;",
+									"});",
+									"",
+									"pm.test(\"Should have the required 'account' object in the response\", function () {",
+									"    pm.expect(jsonData).to.be.an('array'); ",
+									"});",
+									"",
+									"pm.test(\"Should have the `id` property in the account object and is a non-negative integer\", function () {",
+									"  pm.expect(jsonData[0].bookingid).to.be.a('number').and.to.be.at.least(0);",
+									"});",
+									"pm.test(\"Content-Type is present\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\");",
+									"});",
+									"pm.test(\"Test Status code is 200\", () => {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"let text = 'Your api is safe from SQL injection vulnerability'",
+									"",
+									"pm.test(\"checks response for WHERE clause sql injection\", function() {",
+									"    if(pm.response.text().toLowerCase().includes(\"error\")){",
+									"        text = \"Maybe your API is vulnerable to SQL injection vulnerability which allows the retrieval of hidden data\"",
+									"    }",
+									"   pm.expect(pm.response.text().toLowerCase()).to.not.include(\"error\")",
+									"}); ",
+									"pm.test(\"checks response for vulnerability allowing login bypass\", function() {",
+									"   console.log(pm.response.status)",
+									"    if(pm.response.status === \"OK\"){",
+									"      text = \"Maybe your API is vulnerable to SQL injection vulnerability which allows login bypass to access private data\";",
+									"    }",
+									"    pm.expect(pm.response.status).to.not.equal(\"OK\");",
+									"});",
+									"",
+									"pm.test(\"checks vulnerability with basic origin reflection\", function() {",
+									"    pm.expect(pm.response.headers.get(\"Access-Control-Allow-Origin\")).not.equal(pm.environment.get(\"malicious_origin\"))",
+									"    pm.expect(pm.response.headers.get(\"Access-Control-Allow-Credentials\")).to.be.oneOf([undefined,'false'])",
+									"});",
+									"",
+									"pm.test(\"Injection Attacks Check\", function () {",
+									"    pm.expect(pm.response.text()).to.not.include(\"<script>\");",
+									"    pm.expect(pm.response.text()).to.not.include(\"DROP TABLE\");",
+									"});",
+									"",
+									"// Test Cookies",
+									"pm.test(\"Test for Cookies\", () => {",
+									"    pm.expect(pm.cookies.has('string')).to.be.false",
+									"})",
+									"// Testing the body",
+									" pm.test(\"Rate Limiting Check\", function () {",
+									"    pm.response.to.have.status(429);",
+									"});",
+									"pm.test(\"Sensitive Data Exposure Check\", function () {",
+									"    pm.response.to.not.have.jsonBody(\"password\");",
+									"    pm.response.to.not.have.jsonBody(\"token\");",
+									"});",
+									"pm.test(\"Test Data Type in the response\", () => {",
+									"    pm.expect(jsonData).to.be.an(\"array\"); ",
+									"})",
+									"",
+									" ",
+									"pm.test(\"Check for Duplicate values in the object\", () => { ",
+									"    const valuesSoFar =  jsonData;",
+									"    for (var i = 0; i < valuesSoFar.length; i++) {",
+									"        if (valuesSoFar.indexOf(valuesSoFar[i]) !== valuesSoFar.lastIndexOf(valuesSoFar[i])) { ",
+									"            return false; ",
+									"        } ",
+									"    } ",
+									"    return true; ",
+									"})",
+									"",
+									"pm.test(\"Check key pairs\", () => { ",
+									"    // Iterate through the key pairs",
+									"    for (const [key, value] of Object.entries(jsonData)) {",
+									"    // Assert that the value is not equal to null",
+									"    pm.expect(value).not.to.equal(null);",
+									"        if (key === \"email\" || \"msisdn\") {",
+									"            // Assert that the value is not equal to null",
+									"            pm.expect(value).not.to.equal(null);",
+									"        }",
+									"    }",
+									"        ",
+									"});",
+									"     ",
+									"pm.test(\"Input Validation Check\", function () {",
+									"    pm.expect(pm.response.status).to.not.equal(400);",
+									"});",
+									"",
+									"// JSON Schema",
+									"var schema = [",
+									"  {",
+									"    \"bookingid\": 928",
+									"  }",
+									"]",
+									"",
+									"// Test JSON schema",
+									"pm.test(\"Test JSON Schema\", () => {",
+									"    pm.expect(tv4.validate(jsonData, schema)).to.be.true",
+									"})",
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{rb_url}}/booking",
+							"host": [
+								"{{rb_url}}"
+							],
+							"path": [
+								"booking"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Modify Booking",
+			"item": [
+				{
+					"name": "Updatebooking",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const jsonData = pm.response.json();",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 200ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);",
+									"});",
+									"",
+									"pm.test(\"Should have a valid JSON format response body\", function () {",
+									"    pm.expect(jsonData).to.not.be.undefined;",
+									"});",
+									"",
+									"pm.test(\"Response should be a valid JSON object\", function () {",
+									"    pm.expect(jsonData).to.be.an('object');",
+									"});",
+									"",
+									"pm.test(\"Response should contain be object\", function () {",
+									"    pm.expect(jsonData).to.exist;",
+									"    pm.expect(jsonData.bookingdates).to.be.an('object');",
+									"});",
+									"",
+									"pm.test(\"Booking object should have a valid 'totalprice' property\", function () {",
+									"    pm.expect(jsonData).to.have.property('totalprice');",
+									"    pm.expect(jsonData.totalprice).to.be.a('number').and.to.be.at.least(0);",
+									"});",
+									"",
+									"pm.test(\"Content-Type is present\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\");",
+									"});",
+									"",
+									"pm.test(\"checks response for WHERE clause sql injection\", function() {",
+									"    if(pm.response.text().toLowerCase().includes(\"error\")){",
+									"        text = \"Maybe your API is vulnerable to SQL injection vulnerability which allows the retrieval of hidden data\"",
+									"    }",
+									"   pm.expect(pm.response.text().toLowerCase()).to.not.include(\"error\")",
+									"}); ",
+									"",
+									"pm.test(\"checks response for vulnerability allowing login bypass\", function() {",
+									"   console.log(jsonData.status)",
+									"    if(jsonData.status === 200){",
+									"      text = \"Maybe your API is vulnerable to SQL injection vulnerability which allows login bypass to access private data\";",
+									"    }",
+									"    pm.expect(jsonData.status).to.not.equal(200);",
+									"});",
+									"",
+									"",
+									"pm.test(\"checks vulnerability with trusted null origin\", function() {",
+									"    pm.expect(pm.response.headers.get(\"Access-Control-Allow-Origin\")).not.equal(\"null\")",
+									"    pm.expect(pm.response.headers.get(\"Access-Control-Allow-Credentials\")).to.be.oneOf([undefined,'false'])",
+									"});",
+									"",
+									"pm.test(\"Test for Cookies\", () => {",
+									"    pm.expect(pm.cookies.has('string')).to.be.false",
+									"})",
+									"",
+									"pm.test(\"Test Data Type in the response\", () => {",
+									"    pm.expect(jsonData).to.be.an(\"object\");",
+									"    pm.expect(jsonData.firstname).to.be.a(\"string\");",
+									"    pm.expect(jsonData.totalprice).to.be.a(\"number\");",
+									"    pm.expect(jsonData.bookingdates).to.be.an(\"object\") ",
+									"})",
+									"",
+									"// Test if the PUT request requires authentication",
+									"pm.test(\"Request should require authentication\", function () {",
+									"    pm.expect(pm.response.code).not.to.equal(403);",
+									"});",
+									"",
+									"// Test if the request is authorized for users with the correct permissions",
+									"pm.test(\"Request should be authorized\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 204]); // Assuming 200 or 204 are successful response codes",
+									"});",
+									"",
+									"// Test if the request is protected against CSRF attacks",
+									"pm.test(\"Request should be protected against CSRF attacks\", function () {",
+									"    pm.expect(pm.response.headers.has('X-CSRF-Token')).to.be.true;",
+									"});",
+									"",
+									"// Test if the request properly validates input to prevent injection attacks",
+									"pm.test(\"Request should validate input to prevent injection attacks\", function () {",
+									"    pm.expect(pm.response.text()).to.not.include('SQL error');",
+									"    pm.expect(pm.response.text()).to.not.include('XSS vulnerability');",
+									"});",
+									"",
+									"pm.test(\"Check for Duplicate values in the object\", () => { ",
+									"    const valuesSoFar =  jsonData;",
+									"    for (var i = 0; i < valuesSoFar.length; i++) ",
+									"    {",
+									"        if (valuesSoFar.indexOf(valuesSoFar[i]) !== valuesSoFar.lastIndexOf(valuesSoFar[i])) { ",
+									"            return false; ",
+									"        } ",
+									"    } ",
+									"    return true; ",
+									"})",
+									"",
+									"pm.test(\"Check key pairs\", () => { ",
+									"    for (const [key, value] of Object.entries(jsonData)) {",
+									"        pm.expect(value).not.to.equal(null);",
+									"        if (key === \"email\" || key === \"msisdn\") {",
+									"            pm.expect(value).not.to.equal(null);",
+									"        }",
+									"    }",
+									"})",
+									"",
+									"var fn = pm.variables.get(\"firstname\");",
+									"var ln = pm.variables.get(\"lastname\"); ",
+									"",
+									"pm.test(\"Check first name in response body\"+ fn, function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.firstname).to.eql(fn);",
+									"});",
+									"",
+									"pm.test(\"Check last name in response body\"+ ln, function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.lastname).to.eql(ln);",
+									"});",
+									"",
+									"var schema = {",
+									"  \"bookingid\": 1449,",
+									"  \"booking\": {",
+									"    \"firstname\": \"Taylor\",",
+									"    \"lastname\": \"Ken\",",
+									"    \"totalprice\": 157,",
+									"    \"depositpaid\": true,",
+									"    \"bookingdates\": {",
+									"      \"checkin\": \"2024-11-06\",",
+									"      \"checkout\": \"2024-06-03\"",
+									"    },",
+									"    \"additionalneeds\": \"lunch\"",
+									"  }",
+									"}",
+									"",
+									"pm.test(\"Test JSON Schema\", () => {",
+									"    pm.expect(tv4.validate(jsonData, schema)).to.be.true",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Cookie",
+								"value": "token={{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstname\" : \"{{firstname}}\",\n    \"lastname\" : \"{{lastname}}\",\n    \"totalprice\" : 111,\n    \"depositpaid\" : true,\n    \"bookingdates\" : {\n        \"checkin\" : \"{{$randomDateRecent}}\",\n        \"checkout\" : \"{{$randomDateFuture}}\"\n    },\n    \"additionalneeds\" : \"{{additionalneeds}}\"\n}"
+						},
+						"url": {
+							"raw": "{{rb_url}}/booking/11",
+							"host": [
+								"{{rb_url}}"
+							],
+							"path": [
+								"booking",
+								"11"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "noauth"
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							"",
+							"// the moment module helps with data manipulation and formatting",
+							"const moment = require(\"moment\");",
+							"var checkin = moment ().add(\"days\", _.random(1, 180));",
+							"pm.variables.set(\"checkin\", checkin.format(\"YYYY-MM-DD\")); ",
+							"",
+							"var checkout = moment ().add(\"days\", _.random(1, 18));",
+							"pm.variables.set(\"checkout\", checkout.format(\"YYYY-MM-DD\"));",
+							"",
+							"var needs = [",
+							"    \"breakfast in bed\", \"lunch\", \"early checkin\", \"late checkout\", \"Dinner at the beach\"",
+							"];",
+							"pm.variables.set(\"additionalneeds\", needs[_.random(needs.length)]);",
+							"",
+							"// put all the selected variables into a new booking object and save to a variable",
+							"var updateBooking = {",
+							"\t\"bookingdates\" : {",
+							"        \"checkin\" : pm.variables.get(\"checkin\"),",
+							"        \"checkout\" : pm.variables.get(\"checkout\" )",
+							"    },",
+							"\t\"additionalneeds\" : pm.variables.get(\"additionalneeds\")",
+							"}",
+							"",
+							"pm.variables.set(\"update_booking\", updateBooking) "
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "token",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\" : \"admin\",\n    \"password\" : \"password123\"\n}"
+				},
+				"url": {
+					"raw": "https://restful-booker.herokuapp.com/auth",
+					"protocol": "https",
+					"host": [
+						"restful-booker",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"auth"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					"var firstNames = [",
+					"    \"Charles\", \"Kennedy\", \"Joyce\", \"Monica\", \"Peter\", \"Harrison\", \"Gina\", \"John\", \"Davis\", \"Terry\", \"Joshua\", \"Taylor\", \"Nicholas\", \"Elizabeth\", \"Andrew\", \"Sarah\", \"Samantha\"",
+					"]",
+					"",
+					"var lastNames = [",
+					"    \"Smith\", \"Johnson\", \"David\", \"Ngesa\", \"Ken\", \"Brown\", \"Jones\", \"Harris\", \"Martinez\", \"Ronaldo\", \"Messi\", \"Anderson\", \"Thomas\", \"Miller\", \"Jesse\", \"Rashford\"",
+					"]",
+					"",
+					"//randomly select first and last names then add to collection variables",
+					"pm.variables.set(\"firstname\", firstNames[_.random(firstNames.length - 1)]);",
+					"pm.variables.set(\"lastname\", lastNames[_.random(lastNames.length - 1)]);",
+					"",
+					"// Use the random function form the loadash module (_.)",
+					"pm.variables.set(\"totalprice\", _.random(50, 250));",
+					"pm.variables.set(\"depositpaid\", (_.random(1) === 1));",
+					"",
+					"// the moment module helps with data manipulation and formatting",
+					"const moment = require(\"moment\");",
+					"var checkin = moment ().add(\"days\", _.random(1, 180));",
+					"pm.variables.set(\"checkin\", checkin.format(\"YYYY-MM-DD\")); ",
+					"",
+					"var checkout = moment ().add(\"days\", _.random(1, 18));",
+					"pm.variables.set(\"checkout\", checkout.format(\"YYYY-MM-DD\"));",
+					"",
+					"var needs = [",
+					"    \"breakfast in bed\", \"lunch\", \"early checkin\", \"late checkout\", \"Dinner at the beach\"",
+					"];",
+					"pm.variables.set(\"additionalneeds\", needs[_.random(needs.length)]);",
+					"",
+					"// put all the selected variables into a new booking object and save to a variable",
+					"var booking = {",
+					"\t\"firstname\": pm.variables.get(\"firstname\"),",
+					"\t\"lastname\" : pm.variables.get(\"lastname\"),",
+					"\t\"totalprice\" : pm.variables.get(\"totalprice\"),",
+					"\t\"depositpaid\" : pm.variables.get(\"depositpaid\"),",
+					"\t\"bookingdates\" : {",
+					"        \"checkin\" : pm.variables.get(\"checkin\"),",
+					"        \"checkout\" : pm.variables.get(\"checkout\" )",
+					"    },",
+					"\t\"additionalneeds\" : pm.variables.get(\"additionalneeds\")",
+					"}",
+					"",
+					"pm.variables.set(\"new_booking\", booking)",
+					"console.log(booking)"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "booking_id",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
